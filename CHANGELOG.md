@@ -1,5 +1,9 @@
 ## 2025-05-19
 
+- Merge branch 'fix-changelog-sha-links' Testing fixes ([`1e9619b`](https://github.com/spslabo/base-template/commit/1e9619b) by spslabo)
+
+## 2025-05-19
+
 - Merge branch 'fix-changelog-sha-links' Fixing empty changelogs ([`27e58d4`](https://github.com/spslabo/base-template/commit/27e58d4) by spslabo)
 
 ## 2025-05-19
