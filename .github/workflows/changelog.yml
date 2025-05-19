@@ -1,0 +1,43 @@
+name: Append to CHANGELOG on Tag Push
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get previous tag
+        id: get_tag
+        run: |
+          echo "current=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+          prev=$(git tag --sort=-creatordate | grep -B1 "${GITHUB_REF##*/}" | head -n1)
+          echo "previous=$prev" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog section
+        run: |
+          TAG=${{ steps.get_tag.outputs.current }}
+          PREV_TAG=${{ steps.get_tag.outputs.previous }}
+          DATE=$(date +"%Y-%m-%d")
+          echo "## $TAG - $DATE" > NEW_CHANGELOG.md
+          echo "" >> NEW_CHANGELOG.md
+          git log $PREV_TAG..HEAD --pretty=format:"- %s" >> NEW_CHANGELOG.md
+          echo "" >> NEW_CHANGELOG.md
+          cat CHANGELOG.md >> NEW_CHANGELOG.md || true
+          mv NEW_CHANGELOG.md CHANGELOG.md
+
+      - name: Commit and push changelog
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add CHANGELOG.md
+          git commit -m "chore: update changelog for ${{ steps.get_tag.outputs.current }}"
+          git push
