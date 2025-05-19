@@ -12,6 +12,9 @@
 
 ## 2025-05-19
 
+
+## 2025-05-19
+
 - Merge branch 'fix-changelog-sha-links' Testing fixes ([`1e9619b`](https://github.com/spslabo/base-template/commit/1e9619b) by spslabo)
 
 ## 2025-05-19
