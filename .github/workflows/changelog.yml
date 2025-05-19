@@ -40,4 +40,4 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git add CHANGELOG.md
           git commit -m "chore: update changelog for ${{ steps.get_tag.outputs.current }}"
-          git push
+          git push origin HEAD:${{ github.event.repository.default_branch }}
