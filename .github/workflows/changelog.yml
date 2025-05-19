@@ -1,9 +1,9 @@
-name: Append to CHANGELOG on Tag Push
+name: Append to CHANGELOG on Push to Main
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -19,39 +19,39 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get previous tag
-        id: get_tag
+      - name: Find last changelog update commit
+        id: last-changelog
         run: |
-          echo "current=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
-          prev=$(git describe --tags --abbrev=0 HEAD^)
-          echo "previous=$prev" >> $GITHUB_OUTPUT
+          last_commit=$(git log -n 1 --pretty=format:"%H" -- CHANGELOG.md || echo "")
+          echo "hash=$last_commit" >> $GITHUB_OUTPUT
 
-      - name: Generate changelog section
+      - name: Generate new changelog entries
+        id: changelog
         run: |
-          TAG=${{ steps.get_tag.outputs.current }}
-          PREV_TAG=${{ steps.get_tag.outputs.previous }}
-          DATE=$(date +"%Y-%m-%d")
-          echo "## $TAG - $DATE" > NEW_CHANGELOG.md
+          REPO_URL="https://github.com/${{ github.repository }}"
+          START=${{ steps.last-changelog.outputs.hash }}
+          if [ -z "$START" ]; then
+            START=$(git rev-list --max-parents=0 HEAD)
+          fi
+
+          echo "## $(date +'%Y-%m-%d')" > NEW_CHANGELOG.md
           echo "" >> NEW_CHANGELOG.md
-          git log $PREV_TAG..HEAD --pretty=format:"- %s" >> NEW_CHANGELOG.md
+
+          git log "$START"..HEAD --pretty=format:"- %s ([`%h`]($REPO_URL/commit/%H) by %an)" >> NEW_CHANGELOG.md
+
           echo "" >> NEW_CHANGELOG.md
           cat CHANGELOG.md >> NEW_CHANGELOG.md || true
           mv NEW_CHANGELOG.md CHANGELOG.md
 
-      - name: Show git status and diff (for debugging)
-        run: |
-          git status
-          git diff || echo "No diff"
-
-      - name: Commit and push changelog if changed
+      - name: Commit and push if changelog changed
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
           if ! git diff --quiet; then
             git add CHANGELOG.md
-            git commit -m "chore: update changelog for ${{ steps.get_tag.outputs.current }}"
+            git commit -m "chore: update changelog on push to main"
             git push origin HEAD:${{ github.event.repository.default_branch }}
           else
-            echo "No changes to commit"
+            echo "No changes to changelog."
           fi
