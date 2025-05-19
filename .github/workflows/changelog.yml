@@ -26,7 +26,7 @@ jobs:
           echo "## $(date +'%Y-%m-%d')" > NEW_CHANGELOG.md
           echo "" >> NEW_CHANGELOG.md
 
-          git log -1 --pretty=format:"%h|%s|%an" | while IFS='|' read -r sha message author; do
+          git log -1 ${{ github.sha }} --pretty=format:"%h|%s|%an" | while IFS='|' read -r sha message author; do
             if [ -n "$message" ]; then
               echo "- ${message} ([\`${sha}\`](${REPO_URL}/commit/${sha}) by ${author})" >> NEW_CHANGELOG.md
             fi
