@@ -34,10 +34,20 @@ jobs:
           cat CHANGELOG.md >> NEW_CHANGELOG.md || true
           mv NEW_CHANGELOG.md CHANGELOG.md
 
-      - name: Commit and push changelog
+      - name: Show git status and diff (for debugging)
+        run: |
+          git status
+          git diff || echo "No diff"
+
+      - name: Commit and push changelog if changed
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add CHANGELOG.md
-          git commit -m "chore: update changelog for ${{ steps.get_tag.outputs.current }}"
-          git push origin HEAD:${{ github.event.repository.default_branch }}
+
+          if ! git diff --quiet; then
+            git add CHANGELOG.md
+            git commit -m "chore: update changelog for ${{ steps.get_tag.outputs.current }}"
+            git push origin HEAD:${{ github.event.repository.default_branch }}
+          else
+            echo "No changes to commit"
+          fi
