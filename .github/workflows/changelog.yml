@@ -23,7 +23,7 @@ jobs:
         id: get_tag
         run: |
           echo "current=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
-          prev=$(git tag --sort=-creatordate | grep -B1 "${GITHUB_REF##*/}" | head -n1)
+          prev=$(git describe --tags --abbrev=0 HEAD^)
           echo "previous=$prev" >> $GITHUB_OUTPUT
 
       - name: Generate changelog section
