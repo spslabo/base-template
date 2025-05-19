@@ -30,6 +30,7 @@ jobs:
         run: |
           REPO_URL="https://github.com/${{ github.repository }}"
           START=${{ steps.last-changelog.outputs.hash }}
+
           if [ -z "$START" ]; then
             START=$(git rev-list --max-parents=0 HEAD)
           fi
@@ -37,8 +38,10 @@ jobs:
           echo "## $(date +'%Y-%m-%d')" > NEW_CHANGELOG.md
           echo "" >> NEW_CHANGELOG.md
 
-          git log "$START"..HEAD --pretty=format:"%h|%s|%an" | while IFS='|' read -r sha message author; do
-            echo "- $message ([\`$sha\`]($REPO_URL/commit/$sha) by $author)" >> NEW_CHANGELOG.md
+          git log "$START"..HEAD --pretty=format:"%h|%s|%an" -- . ':!CHANGELOG.md' | while IFS='|' read -r sha message author; do
+            if [ -n "$message" ]; then
+              echo "- $message ([\`$sha\`]($REPO_URL/commit/$sha) by $author)" >> NEW_CHANGELOG.md
+            fi
           done
 
           echo "" >> NEW_CHANGELOG.md
