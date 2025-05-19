@@ -1,5 +1,9 @@
 ## 2025-05-19
 
+- Merge branch 'fix-changelog-sha-links' Fixing empty changelogs ([`80128f8`](https://github.com/spslabo/base-template/commit/80128f8b00487b4cc3546dd95764045d48af1a74) by spslabo)
+
+## 2025-05-19
+
 
 ## 2025-05-19
 
